@@ -1,16 +1,19 @@
 package cz.solaracz.taskmanager;
 
 import cz.solaracz.taskmanager.model.Task;
+import cz.solaracz.taskmanager.storage.TaskStorage;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    private static final List<Task> tasks = new ArrayList<>();
+    private static final String STORAGE_FILE = "data/tasks.json";
+    private static final TaskStorage storage = new TaskStorage(STORAGE_FILE);
+    private static List<Task> tasks;
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+        tasks = storage.loadTasks();
         boolean running = true;
 
         System.out.println("=== Správce úkolů (CLI) ===");
@@ -18,7 +21,7 @@ public class Main {
         while (running) {
             printMenu();
             System.out.print("Vyber možnost: ");
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().trim();
 
             switch (input) {
                 case "1" -> listTasks();
@@ -26,7 +29,8 @@ public class Main {
                 case "3" -> markTaskAsCompleted();
                 case "0" -> {
                     running = false;
-                    System.out.println("Aplikace ukončena.");
+                    storage.saveTasks(tasks);
+                    System.out.println("Změny uloženy. Aplikace ukončena.");
                 }
                 default -> System.out.println("Neplatná volba, zkus to znovu.");
             }
@@ -54,12 +58,19 @@ public class Main {
 
     private static void addTask() {
         System.out.print("Zadej název úkolu: ");
-        String title = scanner.nextLine();
-        System.out.print("Zadej popis úkolu: ");
-        String description = scanner.nextLine();
+        String title = scanner.nextLine().trim();
+        if (title.isEmpty()) {
+            System.out.println("Název úkolu nesmí být prázdný.");
+            return;
+        }
 
-        tasks.add(new Task(title, description));
-        System.out.println("Úkol byl úspěšně přidán!");
+        System.out.print("Zadej popis úkolu: ");
+        String description = scanner.nextLine().trim();
+
+        Task newTask = new Task(title, description);
+        tasks.add(newTask);
+        storage.saveTasks(tasks);
+        System.out.println("Úkol byl úspěšně přidán a uložen!");
     }
 
     private static void markTaskAsCompleted() {
@@ -68,15 +79,16 @@ public class Main {
 
         System.out.print("Zadej ID úkolu k dokončení: ");
         try {
-            int id = Integer.parseInt(scanner.nextLine());
+            int id = Integer.parseInt(scanner.nextLine().trim());
             for (Task task : tasks) {
                 if (task.getId() == id) {
                     task.setCompleted(true);
-                    System.out.println("Úkol byl označen jako hotový!");
+                    storage.saveTasks(tasks);
+                    System.out.println("Úkol byl označen jako hotový a změna uložena!");
                     return;
                 }
             }
-            System.out.println("Úkol s tímto ID nebyl nalezen.");
+            System.out.println("Úkol s ID " + id + " nebyl nalezen.");
         } catch (NumberFormatException e) {
             System.out.println("Zadaný vstup není platné číslo.");
         }

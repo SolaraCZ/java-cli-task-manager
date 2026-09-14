@@ -3,11 +3,16 @@ package cz.solaracz.taskmanager.model;
 public class Task {
     private static int idCounter = 1;
 
-    private final int id;
+    private int id;
     private String title;
     private String description;
     private boolean completed;
 
+    // Bezparametrický konstruktor vyžadovaný Jacksonem
+    public Task() {
+    }
+
+    // Konstruktor pro vytváření nových úkolů uživatelem
     public Task(String title, String description) {
         this.id = idCounter++;
         this.title = title;
@@ -15,11 +20,23 @@ public class Task {
         this.completed = false;
     }
 
+    public static void updateIdCounter(int highestId) {
+        idCounter = Math.max(idCounter, highestId + 1);
+    }
+
+    public static void resetCounterForTests() {
+        idCounter = 1;
+    }
+
     public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
     public boolean isCompleted() { return completed; }
     public void setCompleted(boolean completed) { this.completed = completed; }
 
