@@ -21,3 +21,15 @@ A lightweight command-line interface (CLI) task management tool built in Java. I
 - **Build Tool:** Apache Maven
 - **JSON Processing:** Jackson Databind (`2.17.1`)
 - **Testing Framework:** JUnit 5 (Jupiter)
+
+## Installation
+
+### Dependencies
+- **JDK 17+**
+- **Maven 3.8+**
+
+### How to Run
+
+1. **Build the executable JAR:**
+   ```bash
+   mvn clean package
